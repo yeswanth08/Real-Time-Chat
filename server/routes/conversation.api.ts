@@ -5,7 +5,7 @@ import connect from "../models/db";
 
 const app = express.Router();
 
-app.post('/',connect,async(req:Request,res:Response)=>{
+app.post('/setconversation',connect,async(req:Request,res:Response)=>{
     try{
         let senderid = req.body.senderid;
         let reciverid =  req.body.reciverid;
@@ -23,7 +23,7 @@ app.post('/',connect,async(req:Request,res:Response)=>{
 })
 
 
-app.get('/',connect,async (req:Request,res:Response)=>{
+app.get('/getconversation',connect,async (req:Request,res:Response)=>{
     try{
         const payload = await conversationmodel.findOne({members: {$all:[req.body.senderid,req.body.reciverid]}});
         res.status(200).json({msg: payload});

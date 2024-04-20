@@ -6,7 +6,7 @@ import conversationmodel from "../models/conversation.model";
 
 const app = express.Router();
 
-app.post('/newmessage', connect, async (req:Request,res:Response)=>{
+app.post('/setmessage', connect, async (req:Request,res:Response)=>{
     try{
         const newmessage = new messagemodel(req.body);
         await newmessage.save();
