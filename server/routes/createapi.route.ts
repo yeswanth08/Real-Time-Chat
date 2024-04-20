@@ -2,7 +2,8 @@ import express, { Response, Request } from "express";
 import { Types } from "mongoose";
 import { config } from "dotenv";
 import jwt from "jsonwebtoken";
-import usermodel from "../models/usermodel";
+import usermodel from "../models/users.model";
+import connect from "../models/db";
 
 config();
 const app = express.Router();
@@ -17,7 +18,8 @@ const generate_token = async (
   return token;
 };
 
-app.post("/", async (req: Request, res: Response) => {
+
+app.post("/",connect,async (req: Request, res: Response) => {
   try {
     const { username, password }: { username: string; password: string } =
       req.body;

@@ -1,10 +1,11 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import cors from "cors";
-import authapi from "./routes/userauth.route";
 import cookieparser from "cookie-parser";
-import createapi from "./routes/createapi.route";
 import {config} from "dotenv";
-
+import createapi from "./routes/createapi.route";
+import authapi from "./routes/userauth.route";
+import message from "./routes/messages.api";
+import conversations from "./routes/conversation.api";
 
 config();
 const port = process.env.PORT || 9000;
@@ -12,6 +13,7 @@ const app = express();
 const httpserver = app.listen(port,()=>console.log(`app is running on port ${port}`))
 
 app.use(express.json());
+app.use(urlencoded({extended: true}));
 app.use(cors());
 app.use(cookieparser());
 
@@ -19,3 +21,5 @@ app.use(cookieparser());
 
 app.use("/auth-api",authapi);
 app.use("/create-api",createapi);
+app.use("/message-api",message);
+app.use("/conversation-api",conversations);
