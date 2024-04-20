@@ -1,9 +1,8 @@
 import express, { Response, Request } from "express";
 import { Types } from "mongoose";
 import { config } from "dotenv";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import usermodel from "../models/users.model";
-import connect from "../models/db";
 
 config();
 const app = express.Router();
@@ -19,29 +18,30 @@ const generate_token = async (
 };
 
 
-app.post("/",connect,async (req: Request, res: Response) => {
+app.post("/",async (req: Request, res: Response) => {
   try {
-    const { username, password }: { username: string; password: string } =
-      req.body;
+    const { username, password }: { username: string; password: string } = req.body;
 
     const token: string = req.cookies.jwt;
     if (token) {
-      throw new Error("User already registered");
+      const payload = jwt.decode(token) as JwtPayload;
+      if (payload.username === username && payload.password === password) throw new Error("user alrady exsits");
     }
+
+    const isuser = await usermodel.findOne({username});
+    if (isuser) throw new Error('user alerady exists');
+    else{
+
     const newuser = await usermodel.create({ username, password });
     await newuser.save();
 
     const newusertoken = await generate_token(username, password, newuser._id);
-    const maxAgeMilliseconds = 30 * 24 * 60 * 60 * 1000;
     res
       .status(200)
-      .cookie("jwt", newusertoken, {
-        httpOnly: true,
-        maxAge: maxAgeMilliseconds,
-      })
-      .json({ msg: "User created" });
+      .json({ msg: newusertoken });
+    }
   } catch (err) {
-    res.status(404).json({ msg: `${err}` });
+    res.status(201).json({ msg: `${err}` });
   }
 });
 

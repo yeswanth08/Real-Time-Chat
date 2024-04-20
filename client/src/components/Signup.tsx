@@ -6,8 +6,9 @@ import { memo,useState } from 'react';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../index.css';
 import ChatImage from '../assets/chat.png';
+import setcookie from "../cookie";
+import '../index.css';
 
 export default function App(){
     return(
@@ -51,10 +52,14 @@ const Card = memo(function Card(){
     const authenticate = async()=>{
         try{
             const user:{username:string,password:string} = {username,password};
-            const res = await axios.post('http://localhost:9000/create-api/',user);
-
+            const res = await axios.post('http://localhost:9000/create-api/',user,{withCredentials: true});
+        
             if (res.status===404) throw new Error(res.data)
-            else navigate('/');
+            
+            else{
+                setcookie(res.data.msg);
+                navigate('/');
+            }
         }catch(err){
             window.alert(`${err}`);
         }

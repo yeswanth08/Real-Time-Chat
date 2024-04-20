@@ -1,7 +1,9 @@
 //high level -> messages model
 
 import mongoose, { Types} from "mongoose";
+import connect from "./db";
 
+connect();
 
 const messagesschema = new mongoose.Schema({
     conversationid:{

@@ -1,6 +1,9 @@
 // high level --> conversation model
 
 import mongoose from "mongoose";
+import connect from "./db";
+
+connect();
 
 const conversationschema = new mongoose.Schema({
     members:{

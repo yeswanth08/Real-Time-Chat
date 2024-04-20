@@ -3,30 +3,31 @@
  */
 
 
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Conversations from "./Conversations";
 import { useNavigate } from 'react-router-dom';
 import Messages from "./Messages";
-import cookies from 'js-cookie';
+import cookies from 'universal-cookie';
 import "../index.css";
 
 export default function App(){
     
     const navigate =  useNavigate();
+    const cookie = useMemo(()=>new cookies(),[]);
 
     useEffect(()=>{
         const authenticate = async()=>{
             try{
-                const token = await cookies.get('jwt');
+                const token = await cookie.get('jwt');
                 if (!token) navigate('/login');
             }catch(err){
                 navigate('/login');
             }
         };
         authenticate();
-    },[navigate]);  
+    },[navigate,cookie]);  
 
     return(
         <Display>

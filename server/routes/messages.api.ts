@@ -1,12 +1,11 @@
 import express,{Request,Response} from "express";
-import connect from "../models/db";
 import messagemodel from "../models/message.model";
 import conversationmodel from "../models/conversation.model";
 
 
 const app = express.Router();
 
-app.post('/setmessage', connect, async (req:Request,res:Response)=>{
+app.post('/setmessage', async (req:Request,res:Response)=>{
     try{
         const newmessage = new messagemodel(req.body);
         await newmessage.save();
@@ -18,7 +17,7 @@ app.post('/setmessage', connect, async (req:Request,res:Response)=>{
 })
 
 
-app.get('/getmessage',connect,async (req:Request,res:Response)=>{
+app.get('/getmessage',async (req:Request,res:Response)=>{
     try{
         const payload = await messagemodel.find({conversationid: req.params.id});
         res.status(200).json({msg: payload});

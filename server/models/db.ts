@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 import {config} from "dotenv";
-import { NextFunction } from "express";
 
 config();
-const connectionstring = process.env.CONNECTIONSTIRNG as string;
+const connectionstring = process.env.CONNECTIONSTRING as string;
 
-const connect = async (next:NextFunction)=>{
+const connect = async ()=>{
     try{
         await mongoose.connect(connectionstring);
+        console.log("data-base is connected");
     }catch(err){
         console.error(err);
+        throw err;
     }
-    next();
 }
 
 export default connect;

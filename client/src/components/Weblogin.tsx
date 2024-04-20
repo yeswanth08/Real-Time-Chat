@@ -52,8 +52,8 @@ const Card = memo(function Card(){
     const authenticate = async()=>{
         try{
             const user:{username:string,password:string} = {username,password};
-            const res = await axios.post('http://localhost:9000/auth-api/',user);
-
+            const res = await axios.post('http://localhost:9000/auth-api/',user,{withCredentials: true});
+            console.log(res);
             if (res.status===404) throw new Error(res.data)
             else navigate('/');
         }catch(err){

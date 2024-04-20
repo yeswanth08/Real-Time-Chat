@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = require("dotenv");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const usermodel_1 = __importDefault(require("../models/usermodel"));
+const users_model_1 = __importDefault(require("../models/users.model"));
 (0, dotenv_1.config)();
 const app = express_1.default.Router();
 const key = process.env.KEY || "default_key";
@@ -28,22 +28,21 @@ app.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { username, password } = req.body;
         const token = req.cookies.jwt;
         if (token) {
-            throw new Error("User already registered");
+            const payload = jsonwebtoken_1.default.decode(token);
+            if (payload.username === username && payload.password === password)
+                throw new Error("user alrady exsits");
         }
-        const newuser = yield usermodel_1.default.create({ username, password });
+        // const isuser = await usermodel.findOne({username});
+        // if (isuser) throw new Error('user alerady exists');
+        const newuser = yield users_model_1.default.create({ username, password });
         yield newuser.save();
         const newusertoken = yield generate_token(username, password, newuser._id);
-        const maxAgeMilliseconds = 30 * 24 * 60 * 60 * 1000;
         res
             .status(200)
-            .cookie("jwt", newusertoken, {
-            httpOnly: true,
-            maxAge: maxAgeMilliseconds,
-        })
-            .json({ msg: "User created" });
+            .json({ msg: newusertoken });
     }
     catch (err) {
-        res.status(404).json({ msg: `${err}` });
+        res.status(201).json({ msg: `${err}` });
     }
 }));
 exports.default = app;
