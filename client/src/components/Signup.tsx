@@ -55,10 +55,9 @@ const Card = memo(function Card(){
             const res = await axios.post('http://localhost:9000/create-api/',user,{withCredentials: true});
         
             if (res.status===404) throw new Error(res.data)
-            
+                
             else{
-                // setcookie(res.data.msg);
-                console.log("redirected");
+                setcookie(res.data.msg);
                 navigate('/');
             }
         }catch(err){

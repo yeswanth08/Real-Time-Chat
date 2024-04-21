@@ -47,7 +47,7 @@ app.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const newuser = yield users_model_1.default.create({ username, password });
             yield newuser.save();
             const newusertoken = yield generate_token(username, password, newuser._id);
-            res.cookie('jwt', newusertoken, { httpOnly: true })
+            res
                 .status(200)
                 .json({ msg: newusertoken });
         }

@@ -45,13 +45,11 @@ app.post("/",async (req: Request, res: Response) => {
       await newuser.save();
 
       const newusertoken = await generate_token(username, password, newuser._id);
-      res.cookie(
-        'jwt',newusertoken,{httpOnly: true}
-      )
+      res
         .status(200)
         .json({ msg: newusertoken });
     }
-  } catch (err) {
+  }catch (err) {
     res.status(400).json({ msg: `${err}` });
   }
 });
