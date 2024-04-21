@@ -57,7 +57,8 @@ const Card = memo(function Card(){
             if (res.status===404) throw new Error(res.data)
             
             else{
-                setcookie(res.data.msg);
+                // setcookie(res.data.msg);
+                console.log("redirected");
                 navigate('/');
             }
         }catch(err){

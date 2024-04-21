@@ -1,12 +1,18 @@
 import express, { Response, Request } from "express";
 import { Types } from "mongoose";
 import { config } from "dotenv";
+import zod, { string } from 'zod';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import usermodel from "../models/users.model";
 
 config();
 const app = express.Router();
 const key = process.env.KEY || "default_key";
+
+const passwordschema = zod.object({
+    username: zod.string().min(8),
+    password: zod.string().min(8).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/).regex(/[^a-zA-Z0-9]/)
+})
 
 const generate_token = async (
   username: string,
@@ -32,16 +38,21 @@ app.post("/",async (req: Request, res: Response) => {
     if (isuser) throw new Error('user alerady exists');
     else{
 
-    const newuser = await usermodel.create({ username, password });
-    await newuser.save();
+      const validcred = await passwordschema.safeParse({username,password});
+      if (!validcred.success) throw new Error("password should have alteast one caps and one lower and a num and a special char and both the username and the password should be of lenth of 8")
 
-    const newusertoken = await generate_token(username, password, newuser._id);
-    res
-      .status(200)
-      .json({ msg: newusertoken });
+      const newuser = await usermodel.create({ username, password });
+      await newuser.save();
+
+      const newusertoken = await generate_token(username, password, newuser._id);
+      res.cookie(
+        'jwt',newusertoken,{httpOnly: true}
+      )
+        .status(200)
+        .json({ msg: newusertoken });
     }
   } catch (err) {
-    res.status(201).json({ msg: `${err}` });
+    res.status(400).json({ msg: `${err}` });
   }
 });
 
