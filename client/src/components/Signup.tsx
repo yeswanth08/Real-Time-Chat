@@ -7,7 +7,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ChatImage from '../assets/chat.png';
-import setcookie from "../cookie";
+import cookies from 'js-cookie';
 import '../index.css';
 
 export default function App(){
@@ -57,7 +57,7 @@ const Card = memo(function Card(){
             if (res.status===404) throw new Error(res.data)
                 
             else{
-                setcookie(res.data.msg);
+                await cookies.set('jwt',res.data.msg);
                 navigate('/');
             }
         }catch(err){

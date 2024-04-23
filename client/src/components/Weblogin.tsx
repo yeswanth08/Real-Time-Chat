@@ -2,15 +2,22 @@
  * high level --> we have whatsapp web login
  */
 
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../index.css';
 import ChatImage from '../assets/chat.png';
-
+import cookie from 'js-cookie';
+import '../index.css';
 
 export default function App(){
+
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        const token = cookie.get('jwt');
+        if (token) navigate('/');
+    },[navigate]);
     return(
             <Display>
                 <Appbar/>
@@ -31,6 +38,7 @@ const Display = memo(function Display({children}){
 })
 
 const Appbar = memo(function Appbar(){
+
     return(
         <div className='bg-green-600 h-48'>
             <div className='text-white text-xl pt-8 pl-28'>

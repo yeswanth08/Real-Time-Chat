@@ -13,7 +13,7 @@ export default function App() {
     useEffect(() => {
         const authenticate = async () => {
             try {
-                const token = cookies.get('jwt'); 
+                const token = cookies.get('jwt');
                 if (!token) navigate('/login');
             } catch (err) {
                 navigate('/login');

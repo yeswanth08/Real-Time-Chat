@@ -1,68 +1,43 @@
-import express, { urlencoded, json } from "express";
+import express from "express";
 import cors from "cors";
-import cookieparser from "cookie-parser";
+import cookieParser from "cookie-parser";
 import { config } from "dotenv";
-import { createServer } from 'http'; 
-import { Server, Socket } from 'socket.io';
+import {Server as WebSocketServer} from 'ws';
+import createapi from './routes/createapi.route';
+import authapi from './routes/userauth.route';
+import parseapi from './routes/parse.token.route';
 
 config();
 const port = process.env.PORT || 9000;
 const app = express();
-const httpserver = createServer(app); 
-const io = new Server(httpserver, { 
-    cors: {
-        origin: 'http://localhost:3000',
-    },
+const httpServer = app.listen(port, () => console.log(`App is running on port ${port}`));
+
+const wss = new WebSocketServer({ server: httpServer });
+
+wss.on('connection', (ws) => {
+    console.log("WebSocket connected");
+
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+
+    ws.on('message', (data,isBinary:false) => {
+        wss.clients.forEach((client) => {
+            client.send(data.toString('utf-8'));
+        });
+    });
 });
 
-app.use(json()); 
-app.use(urlencoded({ extended: true }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
     optionsSuccessStatus: 200
 }));
-app.use(cookieparser());
+app.use(cookieParser());
 
-
-// WebSocket 
-let users: { sub: string; socketId: string }[] = [];
-
-const addUser = (userData: { sub: string }, socketId: string) => {
-    !users.some(user => user.sub === userData.sub) && users.push({ ...userData, socketId });
-}
-
-const removeUser = (socketId: string) => {
-    users = users.filter(user => user.socketId !== socketId);
-}
-
-const getUser = (userId: string) => {
-    return users.find(user => user.sub === userId);
-}
-
-io.on('connection', (socket: Socket) => {
-    console.log('user connected');
-
-    // Connect
-    socket.on("addUser", (userData: { sub: string }) => {
-        addUser(userData, socket.id);
-        io.emit("getUsers", users);
-    });
-
-    // Send message
-    socket.on('sendMessage', (data: { receiverId: string }) => {
-        const user = getUser(data.receiverId);
-        if (user) {
-            io.to(user.socketId).emit('getMessage', data);
-        }
-    });
-
-    // Disconnect
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-        removeUser(socket.id);
-        io.emit('getUsers', users);
-    });
-});
-
-httpserver.listen(port, () => console.log(`app is running on port ${port}`));
+app.use('/create-api', createapi);
+app.use('/auth-api', authapi);
+app.use('/parse-api', parseapi);

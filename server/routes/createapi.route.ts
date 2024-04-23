@@ -1,7 +1,7 @@
 import express, { Response, Request } from "express";
 import { Types } from "mongoose";
 import { config } from "dotenv";
-import zod, { string } from 'zod';
+import zod from 'zod';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import usermodel from "../models/users.model";
 
