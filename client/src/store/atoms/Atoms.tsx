@@ -1,9 +1,9 @@
 import { JwtPayload } from "jsonwebtoken";
 import { atom } from "recoil";
 
-export const IncommingMessages = atom<string>({
+export const IncommingMessages = atom<string[]>({
     key: "IncomingMessages",
-    default: ""
+    default: []
 });
 
 export const OutgoingMessages = atom<string[]>({

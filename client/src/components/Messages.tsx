@@ -1,5 +1,5 @@
 import { EmojiEmotions } from '@mui/icons-material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { Box, styled, InputBase } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { OutgoingMessages as OutgoingMessagesAtom, IncommingMessages as IncommingMessagesAtom } from "../store/atoms/Atoms";
@@ -12,44 +12,83 @@ import '../index.css';
 type SetOutgoingMessagesFunction = (prevMessages: string[]) => string[];
 
 export default function App() {
-
     const [outgoingMessages, setOutgoingMessages] = useRecoilState<string[]>(OutgoingMessagesAtom);
-    const [incommingMessages, setIncommingMessages] = useRecoilState<string>(IncommingMessagesAtom);
+    const [incomingMessages, setIncomingMessages] = useRecoilState<string[]>(IncommingMessagesAtom);
 
     const [isConnected, setIsConnected] = useState(socket.connected);
 
-        useEffect(() => {
-            function onConnect() {
-                console.log('connected');
-                setIsConnected(true);
-            }
+    useEffect(() => {
+        function onConnect() {
+            console.log('connected');
+            setIsConnected(true);
+        }
 
-            function onDisconnect() {
-                setIsConnected(false);
-            }
-            
-            function onMessage(data:any){
-                setIncommingMessages(data);
-            }
-                socket.on('connect', onConnect);
-                socket.on('disconnect', onDisconnect);
-                socket.on('message',onMessage);
+        function onDisconnect() {
+            setIsConnected(false);
+        }
+        
+        function onMessage(data: any) {
+            setIncomingMessages((prev) => [...prev, data]);
+        }
 
-            return () => {
-                socket.off('connect', onConnect);
-                socket.off('disconnect', onDisconnect);
-            };
-        }, [setIncommingMessages]);
+        socket.on('connect', onConnect);
+        socket.on('disconnect', onDisconnect);
+        socket.on('message', onMessage);
+
+        return () => {
+            socket.off('connect', onConnect);
+            socket.off('disconnect', onDisconnect);
+        };
+    }, [setIncomingMessages]);
+
     return (
         <div className="bg-chat h-[80vh] rounded-r-2xl rounded-l-none flex flex-col">
             <Header />
-            <div className="flex-1 overflow-auto mt-1">
-                    <div className='border-2 bg-green-300 rounded-lg ml-96 mr-12 mb-1 py-6 text-gray-500'>{incommingMessages}</div>
-            </div>
+            <Display incomingMessages={incomingMessages} />
             <Footer socket={socket} setOutgoingMessages={setOutgoingMessages} />
         </div>
     );
 }
+
+function Display({ incomingMessages }: { incomingMessages: string[] }) {
+    const [lastDisplayedIndex, setLastDisplayedIndex] = useState(-1);
+    const conversationListRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (conversationListRef.current) {
+            conversationListRef.current.scrollTop = conversationListRef.current.scrollHeight;
+        }
+    }, [incomingMessages]);
+
+    useEffect(() => {
+        const displayTimer = setTimeout(() => {
+            if (incomingMessages.length > lastDisplayedIndex + 1) {
+                setLastDisplayedIndex((prev) => prev + 1);
+            }
+        }, 100); 
+
+        const removeTimer = setTimeout(() => {
+            if (incomingMessages.length > 0 && lastDisplayedIndex > -1) {
+                setLastDisplayedIndex((prev) => prev - 1);
+            }
+        }, 5); 
+
+        return () => {
+            clearTimeout(displayTimer);
+            clearTimeout(removeTimer);
+        };
+    }, [incomingMessages, lastDisplayedIndex]);
+
+    return (
+        <div ref={conversationListRef} className="conversation-list-container flex-1 overflow-auto mt-1">
+            {incomingMessages.length > 0 &&
+                incomingMessages.slice(0, lastDisplayedIndex + 1).map((message, index) => (
+                    <div key={index} className="conversation-list message ml-96 mr-12 mb-1 max-w-[calc(100%-64px)]  break-words border-2 py-6  bg-green-300 rounded-lg">{message}</div>
+                ))}
+        </div>
+    );
+}
+
 
 function Header() {
     return (
@@ -60,18 +99,16 @@ function Header() {
     );
 }
 
-
-function Footer({ socket, setOutgoingMessages }: { socket: Socket, setOutgoingMessages: SetOutgoingMessagesFunction  }) {
+function Footer({ socket, setOutgoingMessages }: { socket: Socket, setOutgoingMessages: SetOutgoingMessagesFunction }) {
     const [inputValue, setInputValue] = useState<string>('');
 
     const handleSendMessage = () => {
-        if (socket&&socket.connected){
+        if (socket && socket.connected) {
             socket.send(inputValue);
-            setOutgoingMessages((prev)=>[...prev,inputValue]);
-            setInputValue("");
+            setOutgoingMessages((prev) => [...prev, inputValue]);
+            setInputValue('');
         }
     };
-
 
     return (
         <Container>
@@ -89,6 +126,7 @@ function Footer({ socket, setOutgoingMessages }: { socket: Socket, setOutgoingMe
         </Container>
     );
 }
+
 
 const Container = styled(Box)`
     height: 55px;
