@@ -8,7 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ChatImage from '../assets/chat.png';
 import cookies from 'js-cookie';
+import { useRecoilState } from 'recoil';
 import '../index.css';
+import { Username } from '../store/atoms/Atoms';
+import { JwtPayload } from 'jsonwebtoken';
 
 export default function App(){
     return(
@@ -47,6 +50,8 @@ const Card = memo(function Card(){
 
     const [username,setusername] = useState<string>('');
     const [password,setpassword] = useState<string>('');
+    const [payload,setpayload] = useRecoilState<JwtPayload>(Username);
+
     const navigate = useNavigate();
 
     const authenticate = async()=>{
@@ -58,7 +63,9 @@ const Card = memo(function Card(){
                 
             else{
                 await cookies.set('jwt',res.data.msg);
-                navigate('/');
+                const paresedresponse = await axios.post('http://localhost:9000/parse-api/',{token: res.data.msg});
+                await setpayload(paresedresponse.data.msg);
+                navigate('/room');
             }
         }catch(err){
             window.alert(`${err}`);

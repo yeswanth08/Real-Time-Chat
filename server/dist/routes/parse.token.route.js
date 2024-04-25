@@ -18,7 +18,6 @@ const app = express_1.default.Router();
 app.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token } = req.body;
-        console.log(token);
         if (!token) {
             return res.status(401).json({ msg: "No token found" });
         }
@@ -26,7 +25,6 @@ app.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!payload) {
             return res.status(401).json({ msg: "Invalid token" });
         }
-        console.log(payload);
         res.status(200).json({ msg: payload });
     }
     catch (err) {

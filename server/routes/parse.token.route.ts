@@ -6,7 +6,6 @@ const app = express.Router();
 app.post('/', async (req: Request, res: Response) => {
     try {
         const {token} = req.body;
-        console.log(token);
         if (!token) {
             return res.status(401).json({ msg: "No token found" });
         }
@@ -15,7 +14,6 @@ app.post('/', async (req: Request, res: Response) => {
         if (!payload) {
             return res.status(401).json({ msg: "Invalid token" });
         }
-        console.log(payload);
         res.status(200).json({ msg: payload });
     } catch (err) {
         console.error(err);

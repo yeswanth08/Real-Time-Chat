@@ -9,15 +9,27 @@ import axios from 'axios';
 import ChatImage from '../assets/chat.png';
 import cookie from 'js-cookie';
 import '../index.css';
-
+import { useRecoilState } from 'recoil';
+import { Username as UsernameAtom } from '../store/atoms/Atoms';
+import { JwtPayload } from 'jsonwebtoken';
 export default function App(){
 
     const navigate = useNavigate();
+    const[payload,setpayload] = useRecoilState<JwtPayload>(UsernameAtom);
 
     useEffect(()=>{
-        const token = cookie.get('jwt');
-        if (token) navigate('/');
-    },[navigate]);
+        const authenticate = async()=>{
+            const token = await cookie.get('jwt');
+            if(token) {
+                const response = await axios.post('http://localhost:9000/parse-api',{token: token});
+                await setpayload(response.data.msg);
+                navigate('/login');
+            }else{
+                window.alert('you are not a registered user');
+            }
+        }
+        authenticate();
+    },[navigate,setpayload,payload]);
     return(
             <Display>
                 <Appbar/>

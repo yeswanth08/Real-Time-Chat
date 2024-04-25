@@ -7,6 +7,7 @@ import Messages from "./Messages";
 import cookies from 'js-cookie'; 
 import "../index.css";
 
+
 export default function App() {
     const navigate = useNavigate();
 
@@ -24,7 +25,7 @@ export default function App() {
 
     return (
         <Display>
-            <Appbar />
+            <Appbar navigate={navigate} />
         </Display>
     );
 }
@@ -39,12 +40,12 @@ const Display = memo(function Display({ children }) {
     );
 });
 
-const Appbar = memo(function Appbar() {
+const Appbar = memo(function Appbar({navigate}) {
     return (
         <div className='bg-green-600 h-48'>
             <div className='text-white text-xl pt-8 pl-28 flex justify-between'>
                 <div><WhatsAppIcon /> Bhashan Web</div>
-                <button className="mx-32 hover:bg-rose-400 rounded-2xl w-16 px-6 pb-1 hover:cursor-progress"><LogoutIcon /></button>
+                <button className="mx-32 hover:bg-rose-400 rounded-2xl w-16 px-6 pb-1 hover:cursor-progress" onClick={()=>navigate('/login')}><LogoutIcon /></button>
             </div>
             <center>
                 <Card />

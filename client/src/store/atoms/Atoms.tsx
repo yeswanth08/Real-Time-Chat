@@ -1,8 +1,9 @@
+import { JwtPayload } from "jsonwebtoken";
 import { atom } from "recoil";
 
-export const IncommingMessages = atom<string[]>({
+export const IncommingMessages = atom<string>({
     key: "IncomingMessages",
-    default: []
+    default: ""
 });
 
 export const OutgoingMessages = atom<string[]>({
@@ -11,7 +12,13 @@ export const OutgoingMessages = atom<string[]>({
 });
 
 
-export const Username = atom<string>({
+export const Username = atom<JwtPayload>({
     key: "Username",
-    default: ""
+    default: {}
+})
+
+
+export const Roomid = atom<string>({
+    key: 'Roomid',
+    default: ''
 })
